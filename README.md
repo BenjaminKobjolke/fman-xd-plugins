@@ -24,6 +24,11 @@ A collection of utility commands for the [fman](https://fman.io) file manager.
 - **Duplicate**: Creates a copy of selected files with intelligent naming
   - For files with numeric suffixes (e.g., "file_001.txt"): Increments the number
   - For other files: Adds "\_copy" to the filename
+- **Create Symlink**: Creates a symbolic link in the other pane pointing to the selected file/folder
+  - Works with both files and directories
+  - Shows command preview for confirmation
+  - Automatically determines if target is a file or directory
+  - Creates the link in the other pane with the same name as the source
 
 ### External Tools Integration
 

@@ -1,4 +1,4 @@
-from fman import DirectoryPaneCommand, ApplicationCommand, show_alert, FMAN_VERSION, DirectoryPaneListener, load_json, save_json, show_prompt
+from fman import DirectoryPaneCommand, ApplicationCommand, show_alert, YES, NO, FMAN_VERSION, DirectoryPaneListener, load_json, save_json, show_prompt
 from fman.fs import copy, move, exists
 from fman.clipboard import set_text
 from fman.url import as_human_readable, basename
@@ -18,40 +18,7 @@ class Autohotkey(DirectoryPaneCommand):
 		current_path = self.pane.get_path()
 		subprocess.call(f'"{conemu_path}" "{as_human_readable(current_path)}"')
 
-class Duplicate(DirectoryPaneCommand):
-	def __call__(self):
-		paths = self.pane.get_selected_files()
-		# iterate paths
-		for path in paths:						
-			name, ext = os.path.splitext(path)	
-			# split string on underscore
-			name_split = name.split("_")
-			# get last element
-			last_element = name_split[-1]
-			
-			# check if last element is a number
-			if re.match(r'\d+', last_element):
-				#show_alert(last_element)
-				# all elements except last
-				filename = name_split[:-1]
-				# join elements
-				filename = "_".join(filename)
-				digitLength = len(last_element)
-				digit = int(last_element)
-				digit += 1
-				digitString = str(digit)
-				name = filename + "_" + digitString.zfill(digitLength)
-				#show_alert(name)
-				if exists(name + ext):
-					show_alert("File already exists " + basename(name + ext))
-					return
-			else: 
-				name = name + "_copy"
 
-			copypath = name +  ext
-			#show_alert(copypath)
-			copy(path, copypath)
-			
 class FileListAddSelected(DirectoryPaneCommand):
 	def __call__(self):
 		paths = self.pane.get_selected_files()
@@ -129,3 +96,44 @@ class AddProjectFolder(DirectoryPaneCommand):
 		if selection:
 			return [as_human_readable(p) for p in selection]
 		return [as_human_readable(self.pane.get_path())]
+
+class CreateSymlink(DirectoryPaneCommand):
+	def __call__(self):
+		# Get selected files
+		selected = self.pane.get_selected_files()
+		if not selected:
+			show_alert("No files selected")
+			return
+			
+		source_url = selected[0]
+		source_path = as_human_readable(source_url)
+		
+		# Get other pane path
+		panes = self.pane.window.get_panes()
+		this_pane = panes.index(self.pane)
+		other_pane = panes[(this_pane + 1) % len(panes)]
+		target_dir_url = other_pane.get_path()
+		target_path = as_human_readable(target_dir_url) + '\\' + basename(source_url)
+			
+		# Determine if directory
+		is_dir = os.path.isdir(source_path)
+		
+		# Build mklink command
+		cmd = f'cmd /c mklink {"" if not is_dir else "/D"} "{target_path}" "{source_path}"'
+		choice = show_alert(
+			cmd + "\nDo you want to continue?",
+			buttons=YES | NO,
+			default_button=YES
+		)
+		if choice == NO:		
+			return
+		
+		try:
+			# Execute with elevation
+			result = subprocess.run(cmd)
+			if result.returncode == 0:
+				show_alert("Symlink created successfully")
+			else:
+				show_alert(f"Error creating symlink: {result.stderr}")
+		except Exception as e:
+			show_alert(f"Error creating symlink: {str(e)}")

@@ -10,6 +10,9 @@ A collection of utility commands for the [fman](https://fman.io) file manager.
 - **Copy folderpath + filename to clipboard**: Copies the current folder path combined with any selected filenames to clipboard
   - If files are selected: Combines folder path with each selected filename
   - If no files selected: Just copies the folder path
+- **Copy filename to clipboard**: Copies only the selected filenames (without folder path) to clipboard
+  - Multiple filenames are separated by newlines
+  - Does nothing if no files are selected
 
 ### File List Operations
 

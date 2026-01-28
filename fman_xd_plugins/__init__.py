@@ -83,6 +83,21 @@ class CopyFolderpathPlusFilenameToClipboard(DirectoryPaneCommand):
 			
 		set_text(result)
 
+class CopyFilenameToClipboard(DirectoryPaneCommand):
+	def __call__(self):
+		selected = self.pane.get_selected_files()
+
+		if not selected:
+			return
+
+		result = ""
+		for path in selected:
+			if result:
+				result += "\n"
+			result += basename(path)
+
+		set_text(result)
+
 class AddProjectFolder(DirectoryPaneCommand):
 	def __call__(self):
 		exe_path = "D:\\GIT\\Intern\\ProjectFolders\\ProjectFolders.exe"

@@ -3,4 +3,6 @@ Sort Settings (Windows).json
 Visited Paths (Windows).json
 Lastdirectories (Windows).json
 FTP History (Windows).json
-.claude
+.claude/
+/PLAN_*.md
+__pycache__/

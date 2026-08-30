@@ -5,4 +5,6 @@ Lastdirectories (Windows).json
 FTP History (Windows).json
 .claude/
 /PLAN_*.md
+PLAN.md
+HANDOFF.md
 __pycache__/

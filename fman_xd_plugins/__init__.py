@@ -1,4 +1,4 @@
-from fman import DirectoryPaneCommand, ApplicationCommand, show_alert, YES, NO, FMAN_VERSION, DirectoryPaneListener, load_json, save_json, show_prompt
+from fman import DirectoryPaneCommand, ApplicationCommand, show_alert, YES, NO, FMAN_VERSION, DirectoryPaneListener, load_json, save_json, show_prompt, show_status_message
 from fman.fs import copy, move, exists
 from fman.clipboard import set_text
 from fman.url import as_human_readable, basename
@@ -61,10 +61,19 @@ class FileListMoveHere(DirectoryPaneCommand):
 			move(path, copypath)
 
 
+def _copy_to_clipboard_and_report(text):
+	set_text(text)
+	lines = text.split("\n")
+	if len(lines) == 1:
+		message = "Copied %s to the clipboard" % lines[0]
+	else:
+		message = "Copied %d entries to the clipboard" % len(lines)
+	show_status_message(message, timeout_secs=3)
+
 class CopyFolderpathToClipboard(DirectoryPaneCommand):
-	def __call__(self):		
-		path = self.pane.get_path()		
-		set_text(as_human_readable(path))			
+	def __call__(self):
+		path = self.pane.get_path()
+		_copy_to_clipboard_and_report(as_human_readable(path))
 
 class CopyFolderpathPlusFilenameToClipboard(DirectoryPaneCommand):
 	def __call__(self):
@@ -72,7 +81,7 @@ class CopyFolderpathPlusFilenameToClipboard(DirectoryPaneCommand):
 		selected = self.pane.get_selected_files()
 		
 		if not selected:
-			set_text(as_human_readable(folder_path))
+			_copy_to_clipboard_and_report(as_human_readable(folder_path))
 			return
 			
 		result = ""
@@ -80,8 +89,8 @@ class CopyFolderpathPlusFilenameToClipboard(DirectoryPaneCommand):
 			if result:
 				result += "\n"
 			result += as_human_readable(folder_path + "/" + basename(path))
-			
-		set_text(result)
+
+		_copy_to_clipboard_and_report(result)
 
 class CopyFilenameToClipboard(DirectoryPaneCommand):
 	def __call__(self):
@@ -96,7 +105,7 @@ class CopyFilenameToClipboard(DirectoryPaneCommand):
 				result += "\n"
 			result += basename(path)
 
-		set_text(result)
+		_copy_to_clipboard_and_report(result)
 
 class AddProjectFolder(DirectoryPaneCommand):
 	def __call__(self):
